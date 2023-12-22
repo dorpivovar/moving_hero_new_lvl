@@ -102,6 +102,9 @@ class Tile(pygame.sprite.Sprite):
         self.image = tile_images[tile_type]
         self.rect = self.image.get_rect().move(tile_width * pos_x - 15, tile_height * pos_y - 5)
 
+        def update(self, *args, **kwargs) -> None:
+            pass
+
 
 class Player(pygame.sprite.Sprite):
 
@@ -163,6 +166,33 @@ class Camera:
         self.dy = -(target.rect.y + target.rect.h // 2 - HEIGHT // 2)
 
 
+def flip_tiles(dx, dy):
+    if abs(dx) != tile_width and abs(dy) != tile_height:
+        return
+    top_right_rect = max((i for i in tiles_group if isinstance(i, Tile)),
+                         key=lambda t: (t.rect.x, -t.rect.y)).rect.copy()
+    bottom_left_rect = min((i for i in tiles_group if isinstance(i, Tile)),
+                           key=lambda t: (t.rect.x, -t.rect.y)).rect.copy()
+    for tile in tiles_group:
+        if dx > 0:
+            if tile.rect.right != top_right_rect.right:
+                continue
+            tile.rect.x = bottom_left_rect.x - top_right_rect.width
+        elif dx < 0:
+            if tile.rect.left != bottom_left_rect.left:
+                continue
+            tile.rect.x = top_right_rect.x + bottom_left_rect.width
+    for tile in tiles_group:
+        if dy > 0:
+            if tile.rect.bottom != bottom_left_rect.bottom:
+                continue
+            tile.rect.y = top_right_rect.y - tile.rect.w
+        elif dy < 0:
+            if tile.rect.top != top_right_rect.top:
+                continue
+            tile.rect.y = bottom_left_rect.y + tile.rect.width
+
+
 camera = Camera()
 
 running = True
@@ -183,6 +213,7 @@ while running:
     camera.update(player)
     for sprite in all_sprites:
         camera.apply(sprite)
+    flip_tiles(camera.dx, camera.dy)
     screen.fill(pygame.Color(0, 0, 0))
     tiles_group.draw(screen)
     player_group.draw(screen)
