@@ -63,6 +63,12 @@ def start_screen():
             if event.type == pygame.QUIT:
                 terminate()
             if event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.KEYDOWN:
+                string_rendered = font.render('Введите имя файла уровня в терминале', True, 'black')
+                intro_rect = string_rendered.get_rect()
+                intro_rect.top = text_coord
+                intro_rect.x = 10
+                screen.blit(string_rendered, intro_rect)
+                pygame.display.flip()
                 return
         pygame.display.flip()
         clock.tick(FPS)
@@ -129,7 +135,17 @@ def generate_level(level):
     return new_player, x, y
 
 
-player, level_x, level_y = generate_level(load_level('levelex.txt'))
+def get_level_from_user():
+    filepath = f"data/{input('Введите имя файла уровня: ')}"
+    if not os.path.exists(filepath):
+        print(f'Файл "{filepath}" не существует')
+        sys.exit(1)
+    filepath = os.path.join('..', filepath)
+    level = load_level(filepath)
+    return level
+
+
+player, level_x, level_y = generate_level(get_level_from_user())
 
 
 class Camera:
