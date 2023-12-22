@@ -180,6 +180,9 @@ while running:
                 player.move(0, -tile_height)
             if event.key == pygame.K_DOWN:
                 player.move(0, tile_height)
+    camera.update(player)
+    for sprite in all_sprites:
+        camera.apply(sprite)
     screen.fill(pygame.Color(0, 0, 0))
     tiles_group.draw(screen)
     player_group.draw(screen)
